@@ -1,0 +1,10 @@
+.idea
+/target
+/test-output
+test-output/
+test-output/*
+.classpath
+.project
+.settings/
+/bin/
+/*.iml
