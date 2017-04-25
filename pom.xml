@@ -334,6 +334,17 @@
                 <artifactId>download-maven-plugin</artifactId>
                 <version>1.3.0</version>
             </plugin>
+
+
+            <plugin>
+                <groupId>external.atlassian.jgitflow</groupId>
+                <artifactId>jgitflow-maven-plugin</artifactId>
+                <version>1.0-m5.1</version>
+                <configuration>
+                    <!-- see goals wiki page for configuration options -->
+                </configuration>
+            </plugin>
+
             <!-- The following plugin enables you to setup and start a docker container.
                 This way you are able to setup a database, rabbitmq container or any other
                 external dependency which is needed by your integration tests. @see https://registry.hub.docker.com/ -->
