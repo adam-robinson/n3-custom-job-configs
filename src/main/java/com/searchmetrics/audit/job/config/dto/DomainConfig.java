@@ -14,14 +14,18 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static org.apache.commons.lang3.EnumUtils.isValidEnum;
 @Table(value = "domainConfigs")
 public class DomainConfig {
+
     public enum ProxyType {NONE, DE, US}
 
     public enum RuleScope {ALL, KEYWORD, SO, SSO}
+
+    public enum StaticIPCrawlType {NOT, DE, US}
 
     public enum UserAgentType {
         SEARCHMETRICSBOT,
         GOOGLEBOT
     }
+
     @PrimaryKeyColumn(
         name = "uuid",
         ordinal = 0,
@@ -31,7 +35,7 @@ public class DomainConfig {
             name = "domain",
             ordinal = 1,
             type = PrimaryKeyType.CLUSTERED)
-    private final String domain; //default crawler config
+    private String domain; //default crawler config
     @Column
     private Boolean exactMatch = true;
     @Column
@@ -41,9 +45,9 @@ public class DomainConfig {
     @Column
     private Boolean isJavascriptCrawl = false;
     @Column
-    private Boolean isStaticIPCrawl = false;
+    private String staticIPCrawlType = StaticIPCrawlType.NOT.name();
     @Column
-    private Boolean noCanonical = false;
+    private Boolean noCanonicals = false;
     @Column
     private Boolean noCookies = false;
     @Column
@@ -64,8 +68,8 @@ public class DomainConfig {
         @JsonProperty("calculateBaseURL") final Boolean calculateBaseURL,
         @JsonProperty("customHeaders") final List<String> customHeaders,
         @JsonProperty("isJavascriptCrawl") final Boolean isJavascriptCrawl,
-        @JsonProperty("isStaticIPCrawl") final Boolean isStaticIPCrawl,
-        @JsonProperty("noCanonical") final Boolean noCanonical,
+        @JsonProperty("staticIPCrawlType") final String staticIPCrawlType,
+        @JsonProperty("noCanonicals") final Boolean noCanonicals,
         @JsonProperty("noCookies") final Boolean noCookies,
         @JsonProperty("notes") final List<String> notes,
         @JsonProperty("proxyType") final String proxyType,
@@ -78,7 +82,6 @@ public class DomainConfig {
         if (isValidEnum(RuleScope.class, ruleScope))
             this.ruleScope = ruleScope;
 
-
         if (null != exactMatch)
             this.exactMatch = exactMatch;
 
@@ -88,8 +91,11 @@ public class DomainConfig {
         if (null != customHeaders)
             this.customHeaders = customHeaders;
 
-        if (null != noCanonical)
-            this.noCanonical = noCanonical;
+        if (null != isJavascriptCrawl)
+            this.isJavascriptCrawl = isJavascriptCrawl;
+
+        if (null != noCanonicals)
+            this.noCanonicals = noCanonicals;
 
         if (null != noCookies)
             this.noCookies = noCookies;
@@ -97,8 +103,12 @@ public class DomainConfig {
         if (null != proxyType && isValidEnum(ProxyType.class, proxyType)) {
             this.proxyType = proxyType;
         }
+
         if (null != readTimeout)
             this.readTimeout = readTimeout;
+
+        if (null != staticIPCrawlType)
+            this.staticIPCrawlType = staticIPCrawlType;
 
         if (null != userAgent && isValidEnum(UserAgentType.class, userAgent)) {
             this.userAgent = userAgent;
@@ -107,7 +117,17 @@ public class DomainConfig {
         if (null != notes)
             this.notes = notes;
 
-        this.uuid = UUID.fromString(String.join("|", domain, exactMatch.toString(), userAgent));
+        this.uuid = UUID.randomUUID();
+    }
+
+    @JsonProperty
+    public Boolean getJavascriptCrawl() {
+        return isJavascriptCrawl;
+    }
+
+    @JsonProperty
+    public String getRuleScope() {
+        return ruleScope;
     }
 
     @JsonProperty
@@ -131,8 +151,8 @@ public class DomainConfig {
         return customHeaders;
     }
     @JsonProperty
-    public Boolean getNoCanonical() {
-        return noCanonical;
+    public Boolean getNoCanonicals() {
+        return noCanonicals;
     }
     @JsonProperty
     public Boolean getNoCookies() {
@@ -154,35 +174,104 @@ public class DomainConfig {
     public List<String> getNotes() {
         return notes;
     }
+    @JsonProperty
+    public String getStaticIPCrawlType() {
+        return staticIPCrawlType;
+    }
 
+
+    public void setDomain(String domain) {
+        this.domain = domain;
+    }
+
+    public void setExactMatch(Boolean exactMatch) {
+        this.exactMatch = exactMatch;
+    }
+
+    public void setCalculateBaseURL(Boolean calculateBaseURL) {
+        this.calculateBaseURL = calculateBaseURL;
+    }
+
+    public void setCustomHeaders(List<String> customHeaders) {
+        this.customHeaders = customHeaders;
+    }
+
+    public void setJavascriptCrawl(Boolean javascriptCrawl) {
+        isJavascriptCrawl = javascriptCrawl;
+    }
+
+    public void setStaticIPCrawlType(String staticIPCrawlType) {
+        this.staticIPCrawlType = staticIPCrawlType;
+    }
+
+    public void setNoCanonicals(Boolean noCanonicals) {
+        this.noCanonicals = noCanonicals;
+    }
+
+    public void setNoCookies(Boolean noCookies) {
+        this.noCookies = noCookies;
+    }
+
+    public void setProxyType(String proxyType) {
+        this.proxyType = proxyType;
+    }
+
+    public void setReadTimeout(Integer readTimeout) {
+        this.readTimeout = readTimeout;
+    }
+
+    public void setRuleScope(String ruleScope) {
+        this.ruleScope = ruleScope;
+    }
+
+    public void setUserAgent(String userAgent) {
+        this.userAgent = userAgent;
+    }
+
+    public void setNotes(List<String> notes) {
+        this.notes = notes;
+    }
+
+
+    public static DomainConfig getEmptyConfig() {
+        return new DomainConfig(
+            "Fill in a value...",
+            false,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            "ALL",
+            UserAgentType.SEARCHMETRICSBOT.name()
+            );
+    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (! (o instanceof DomainConfig)) return false;
 
         DomainConfig that = (DomainConfig) o;
 
-        if (!uuid.equals(that.uuid))
-            return false;
-        if (! domain.equals(that.domain))
-            return false;
-        if (! exactMatch.equals(that.exactMatch))
-            return false;
-        if (! calculateBaseURL.equals(that.calculateBaseURL))
-            return false;
+        if (! uuid.equals(that.uuid)) return false;
+        if (! domain.equals(that.domain)) return false;
+        if (! exactMatch.equals(that.exactMatch)) return false;
+        if (! calculateBaseURL.equals(that.calculateBaseURL)) return false;
         if (customHeaders != null ? ! customHeaders.equals(that.customHeaders) : that.customHeaders != null)
             return false;
-        if (! noCanonical.equals(that.noCanonical))
-            return false;
-        if (! noCookies.equals(that.noCookies))
-            return false;
-        if (! proxyType.equals(that.proxyType))
-            return false;
-        if (! readTimeout.equals(that.readTimeout))
-            return false;
-        if (! userAgent.equals(that.userAgent))
-            return false;
+        if (! isJavascriptCrawl.equals(that.isJavascriptCrawl)) return false;
+        if (! staticIPCrawlType.equals(that.staticIPCrawlType)) return false;
+        if (! noCanonicals.equals(that.noCanonicals)) return false;
+        if (! noCookies.equals(that.noCookies)) return false;
+        if (! proxyType.equals(that.proxyType)) return false;
+        if (! readTimeout.equals(that.readTimeout)) return false;
+        if (! ruleScope.equals(that.ruleScope)) return false;
+        if (! userAgent.equals(that.userAgent)) return false;
         return notes != null ? notes.equals(that.notes) : that.notes == null;
     }
 
@@ -193,10 +282,13 @@ public class DomainConfig {
         result = 31 * result + exactMatch.hashCode();
         result = 31 * result + calculateBaseURL.hashCode();
         result = 31 * result + (customHeaders != null ? customHeaders.hashCode() : 0);
-        result = 31 * result + noCanonical.hashCode();
+        result = 31 * result + isJavascriptCrawl.hashCode();
+        result = 31 * result + staticIPCrawlType.hashCode();
+        result = 31 * result + noCanonicals.hashCode();
         result = 31 * result + noCookies.hashCode();
         result = 31 * result + proxyType.hashCode();
         result = 31 * result + readTimeout.hashCode();
+        result = 31 * result + ruleScope.hashCode();
         result = 31 * result + userAgent.hashCode();
         result = 31 * result + (notes != null ? notes.hashCode() : 0);
         return result;
@@ -205,17 +297,20 @@ public class DomainConfig {
     @Override
     public String toString() {
         return "DomainConfig{" +
-                "uuid=" + uuid +
-                ", domain='" + domain + '\'' +
-                ", exactMatch=" + exactMatch +
-                ", calculateBaseURL=" + calculateBaseURL +
-                ", customHeaders=" + customHeaders +
-                ", noCanonical=" + noCanonical +
-                ", noCookies=" + noCookies +
-                ", proxyType='" + proxyType + '\'' +
-                ", readTimeout=" + readTimeout +
-                ", userAgent='" + userAgent + '\'' +
-                ", notes=" + notes +
-                '}';
+            "uuid=" + uuid +
+            ", domain='" + domain + '\'' +
+            ", exactMatch=" + exactMatch +
+            ", calculateBaseURL=" + calculateBaseURL +
+            ", customHeaders=" + customHeaders +
+            ", isJavascriptCrawl=" + isJavascriptCrawl +
+            ", staticIPCrawlType='" + staticIPCrawlType + '\'' +
+            ", noCanonicals=" + noCanonicals +
+            ", noCookies=" + noCookies +
+            ", proxyType='" + proxyType + '\'' +
+            ", readTimeout=" + readTimeout +
+            ", ruleScope='" + ruleScope + '\'' +
+            ", userAgent='" + userAgent + '\'' +
+            ", notes=" + notes +
+            '}';
     }
 }

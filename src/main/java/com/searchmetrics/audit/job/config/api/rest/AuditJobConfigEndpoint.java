@@ -65,7 +65,7 @@ public class AuditJobConfigEndpoint {
         if (LOGGER.isDebugEnabled())
             LOGGER.debug(String.valueOf(domainConfig));
 
-        DomainConfig dc = domainConfigRepository.findByDomain(domainConfig.getDomain());
+        DomainConfig dc = domainConfigRepository.findByUuid(domainConfig.getUuid());
         if (null != dc) {
             return Response.status(Status.CONFLICT).entity(dc).build();
         }

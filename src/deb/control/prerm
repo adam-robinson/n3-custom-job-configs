@@ -1,0 +1,10 @@
+#!/bin/bash
+
+INIT_SCRIPT="/etc/init.d/[[debian.package.name]]"
+
+if [ -f "$INIT_SCRIPT" ];
+then
+    service [[debian.package.name]] stop
+fi
+
+exit 0

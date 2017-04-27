@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# restart consul daemon and consul template
+# if [ -f "/etc/init.d/sm-consul-io" ];
+# then
+#     echo "restart sm-consul-io"
+#     service sm-consul-io restart
+# fi
+
+# if [ -f "/etc/init.d/sm-consul-template" ];
+# then
+#     echo "restart sm-consul-template"
+#     service sm-consul-template restart
+# fi
+
+exit 0

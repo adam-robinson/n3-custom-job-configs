@@ -30,8 +30,7 @@ cassandra:
   hosts:
     - "rudolfsteiner.unbelievable-machine.net"
   port: 9042
-  keyspace: audit_crawler
-  table: audit_job_config
+  keyspace: audit_job_config
 
 swagger:
   resourcePackage: com.searchmetrics.audit.job.config.api.rest

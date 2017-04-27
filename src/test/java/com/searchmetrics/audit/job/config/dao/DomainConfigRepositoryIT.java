@@ -69,10 +69,13 @@ public class DomainConfigRepositoryIT {
             false,
             null,
             false,
-            false,
+            null,
+            null,
+            null,
             null,
             DomainConfig.ProxyType.NONE.name(),
             20,
+            null,
             DomainConfig.UserAgentType.SEARCHMETRICSBOT.name()
         );
         domainConfigRepository.save(testConfig);

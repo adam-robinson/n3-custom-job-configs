@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration monitorInterval="600" status="INFO">
+    <Appenders>
+        <RollingFile name="APP-LOG"
+                     fileName="/var/log/searchmetrics/${debian.package.name}-${project.version}/application.log"
+                     filePattern="/var/log/searchmetrics/${debian.package.name}-${project.version}/application-%i.gz">
+            <PatternLayout>
+                <Pattern>%d{ISO8601} %-5p [%t] [%X{sessionId}] %c{1}: %m%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+
+        <RollingFile name="REQUEST-LOG"
+                     fileName="/var/log/searchmetrics/${debian.package.name}-${project.version}/request.log"
+                     filePattern="/var/log/searchmetrics/${debian.package.name}-${project.version}/request-%i.gz">
+            <PatternLayout>
+                <Pattern>%d{ISO8601} %-5p [%t] %c{1}: %m%n</Pattern>
+            </PatternLayout>
+
+            <Policies>
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+
+        <RollingFile name="RESPONSE-LOG"
+                     fileName="/var/log/searchmetrics/${debian.package.name}-${project.version}/response.log"
+                     filePattern="/var/log/searchmetrics/${debian.package.name}-${project.version}/response-%i.gz">
+            <PatternLayout>
+                <Pattern>%d{ISO8601} %-5p [%t] %c{1}: %m%n</Pattern>
+            </PatternLayout>
+
+            <Policies>
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+
+
+    </Appenders>
+    <Loggers>
+        <AsyncLogger name="com.searchmetrics.topicgraph" level="info" additivity="false">
+            <AppenderRef ref="APP-LOG"/>
+        </AsyncLogger>
+
+        <AsyncLogger name="topicgraph_request" level="debug" additivity="false">
+            <AppenderRef ref="REQUEST-LOG"/>
+        </AsyncLogger>
+
+        <AsyncLogger name="topicgraph_response" level="debug" additivity="false">
+            <AppenderRef ref="RESPONSE-LOG"/>
+        </AsyncLogger>
+
+        <AsyncRoot level="warn">
+            <AppenderRef ref="APP-LOG"/>
+        </AsyncRoot>
+    </Loggers>
+</Configuration>
