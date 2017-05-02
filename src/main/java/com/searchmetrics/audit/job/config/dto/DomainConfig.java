@@ -15,6 +15,9 @@ import static org.apache.commons.lang3.EnumUtils.isValidEnum;
 @Table(value = "domainConfigs")
 public class DomainConfig {
     public enum ProxyType {NONE, DE, US}
+
+    public enum RuleScope {ALL, KEYWORD, SO, SSO}
+
     public enum UserAgentType {
         SEARCHMETRICSBOT,
         GOOGLEBOT
@@ -36,6 +39,10 @@ public class DomainConfig {
     @Column
     private List<String> customHeaders;
     @Column
+    private Boolean isJavascriptCrawl = false;
+    @Column
+    private Boolean isStaticIPCrawl = false;
+    @Column
     private Boolean noCanonical = false;
     @Column
     private Boolean noCookies = false;
@@ -44,26 +51,35 @@ public class DomainConfig {
     @Column
     private Integer readTimeout = 20;
     @Column
+    private String ruleScope = RuleScope.ALL.name();
+    @Column
     private String userAgent = UserAgentType.SEARCHMETRICSBOT.name();
     @Column
     private List<String> notes;
 
     @JsonCreator
-    public DomainConfig( //constructor
-                         @JsonProperty("domain") final String domain,
-                         @JsonProperty("exactMatch") final Boolean exactMatch,
-                         @JsonProperty("calculateBaseURL") final Boolean calculateBaseURL,
-                         @JsonProperty("customHeaders") final List<String> customHeaders,
-                         @JsonProperty("noCanonical") final Boolean noCanonical,
-                         @JsonProperty("noCookies") final Boolean noCookies,
-                         @JsonProperty("notes") final List<String> notes,
-                         @JsonProperty("proxyType") final String proxyType,
-                         @JsonProperty("readTimeout") final Integer readTimeout,
-                         @JsonProperty("userAgent") final String userAgent) {
-        checkNotNull(domain);
-        this.domain = domain;
+    public DomainConfig(
+        @JsonProperty("domain") final String domain,
+        @JsonProperty("exactMatch") final Boolean exactMatch,
+        @JsonProperty("calculateBaseURL") final Boolean calculateBaseURL,
+        @JsonProperty("customHeaders") final List<String> customHeaders,
+        @JsonProperty("isJavascriptCrawl") final Boolean isJavascriptCrawl,
+        @JsonProperty("isStaticIPCrawl") final Boolean isStaticIPCrawl,
+        @JsonProperty("noCanonical") final Boolean noCanonical,
+        @JsonProperty("noCookies") final Boolean noCookies,
+        @JsonProperty("notes") final List<String> notes,
+        @JsonProperty("proxyType") final String proxyType,
+        @JsonProperty("readTimeout") final Integer readTimeout,
+        @JsonProperty("ruleScope") final String ruleScope,
+        @JsonProperty("userAgent") final String userAgent) {
+        this.domain = checkNotNull(domain);
 
-        if (null != exactMatch) //sets the config data
+        checkNotNull(ruleScope);
+        if (isValidEnum(RuleScope.class, ruleScope))
+            this.ruleScope = ruleScope;
+
+
+        if (null != exactMatch)
             this.exactMatch = exactMatch;
 
         if (null != calculateBaseURL)
@@ -95,7 +111,9 @@ public class DomainConfig {
     }
 
     @JsonProperty
-    public UUID getUuid() { return uuid; }
+    public UUID getUuid() {
+        return uuid;
+    }
     @JsonProperty // gets config data
     public String getDomain() {
         return domain;
@@ -145,16 +163,26 @@ public class DomainConfig {
 
         DomainConfig that = (DomainConfig) o;
 
-        if (!uuid.equals(that.uuid)) return false;
-        if (!domain.equals(that.domain)) return false;
-        if (!exactMatch.equals(that.exactMatch)) return false;
-        if (!calculateBaseURL.equals(that.calculateBaseURL)) return false;
-        if (!customHeaders.equals(that.customHeaders)) return false;
-        if (!noCanonical.equals(that.noCanonical)) return false;
-        if (!noCookies.equals(that.noCookies)) return false;
-        if (!proxyType.equals(that.proxyType)) return false;
-        if (!readTimeout.equals(that.readTimeout)) return false;
-        if (!userAgent.equals(that.userAgent)) return false;
+        if (!uuid.equals(that.uuid))
+            return false;
+        if (! domain.equals(that.domain))
+            return false;
+        if (! exactMatch.equals(that.exactMatch))
+            return false;
+        if (! calculateBaseURL.equals(that.calculateBaseURL))
+            return false;
+        if (customHeaders != null ? ! customHeaders.equals(that.customHeaders) : that.customHeaders != null)
+            return false;
+        if (! noCanonical.equals(that.noCanonical))
+            return false;
+        if (! noCookies.equals(that.noCookies))
+            return false;
+        if (! proxyType.equals(that.proxyType))
+            return false;
+        if (! readTimeout.equals(that.readTimeout))
+            return false;
+        if (! userAgent.equals(that.userAgent))
+            return false;
         return notes != null ? notes.equals(that.notes) : that.notes == null;
     }
 
@@ -164,7 +192,7 @@ public class DomainConfig {
         result = 31 * result + domain.hashCode();
         result = 31 * result + exactMatch.hashCode();
         result = 31 * result + calculateBaseURL.hashCode();
-        result = 31 * result + customHeaders.hashCode();
+        result = 31 * result + (customHeaders != null ? customHeaders.hashCode() : 0);
         result = 31 * result + noCanonical.hashCode();
         result = 31 * result + noCookies.hashCode();
         result = 31 * result + proxyType.hashCode();
