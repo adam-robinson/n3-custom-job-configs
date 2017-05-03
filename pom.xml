@@ -196,6 +196,12 @@
             <version>${spring.version}</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/com.vaadin/vaadin -->
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin</artifactId>
+            <version>6.8.18</version>
+        </dependency>
 
         <dependency>
             <groupId>com.datastax.cassandra</groupId>
